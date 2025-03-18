@@ -11,6 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # find dependencies
+find_package(rclpy REQUIRED)  # For Python nodes
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(turtlebot3_manipulation_bringup REQUIRED)
@@ -43,6 +44,10 @@ ament_target_dependencies(
 
 install(TARGETS turtlebot3_manipulation_teleop
   DESTINATION lib/${PROJECT_NAME})
+
+install(PROGRAMS
+  scripts/echo_vel.py
+  DESTINATION lib/turtlebot3_manipulation_teleop)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

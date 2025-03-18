@@ -16,15 +16,6 @@
 #
 # Authors: Hye-jong KIM
 
-# setup assistant (humble)
-# from moveit_configs_utils import MoveItConfigsBuilder
-# from moveit_configs_utils.launches import generate_move_group_launch
-# def generate_launch_description():
-#     moveit_config = MoveItConfigsBuilder("turtlebot3_manipulation",
-#                     package_name="turtlebot3_manipulation_moveit_config").to_moveit_configs()
-#     return generate_move_group_launch(moveit_config)
-
-
 import os
 import yaml
 import xacro
@@ -34,7 +25,15 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
+# ===============================================================
+from moveit_configs_utils import MoveItConfigsBuilder
 
+moveit_config = (
+    MoveItConfigsBuilder("turtlebot3_manipulation")
+    .to_moveit_configs()
+)
+
+# ===============================================================
 
 def generate_launch_description():
     # Robot description
@@ -46,6 +45,10 @@ def generate_launch_description():
         )
     )
     robot_description = {"robot_description": robot_description_config.toxml()}
+    
+    
+ # =================================================================================
+
 
     # Robot description Semantic config
     robot_description_semantic_path = os.path.join(
@@ -59,17 +62,9 @@ def generate_launch_description():
     robot_description_semantic = {
         "robot_description_semantic": robot_description_semantic_config
     }
+    
+    # =================================================================================
 
-    # kinematics yaml
-    kinematics_yaml_path = os.path.join(
-        get_package_share_directory("turtlebot3_manipulation_moveit_config"),
-        "config",
-        "kinematics.yaml",
-    )
-    with open(kinematics_yaml_path, "r") as file:
-        kinematics_yaml = yaml.safe_load(file)
-
-    # Planning Functionality
     # Planning Functionality
     ompl_planning_pipeline_config = {
         "move_group": {
@@ -101,9 +96,9 @@ def generate_launch_description():
 
     # Moveit Controllers
     moveit_simple_controllers_yaml_path = os.path.join(
-      get_package_share_directory("turtlebot3_manipulation_moveit_config"),
-      "config",
-      "moveit_controllers.yaml",
+        get_package_share_directory("turtlebot3_manipulation_moveit_config"),
+        "config",
+        "moveit_controllers.yaml",
     )
     with open(moveit_simple_controllers_yaml_path, "r") as file:
         moveit_simple_controllers_yaml = yaml.safe_load(file)
@@ -113,8 +108,37 @@ def generate_launch_description():
         "moveit_controller_manager":
             "moveit_simple_controller_manager/MoveItSimpleControllerManager",
     }
+# =================================================================================
+    # Loading joint_limits.yaml
+    joint_limits_yaml_path = os.path.join(
+        get_package_share_directory("turtlebot3_manipulation_moveit_config"),
+        "config",
+        "joint_limits.yaml",
+    )
+    with open(joint_limits_yaml_path, "r") as file:
+        joint_limits_yaml = yaml.safe_load(file)
 
-    # Planning Scene Monitor Parameters
+    # Add joint_limits to the parameters
+    moveit_controllers["joint_limits"] = joint_limits_yaml
+    
+# ==================================================================================
+    # kinematics yaml
+    kinematics_yaml_path = os.path.join(
+        get_package_share_directory("turtlebot3_manipulation_moveit_config"),
+        "config",
+        "kinematics.yaml",
+    )
+    with open(kinematics_yaml_path, "r") as file:
+        kinematics_yaml = yaml.safe_load(file)
+    
+    #moveit_controllers["kinematics"] = kinematics_yaml
+ 
+ # ====================================================================================
+
+
+
+
+# Planning Scene Monitor Parameters
     planning_scene_monitor_parameters = {
         "publish_planning_scene": True,
         "publish_geometry_updates": True,
@@ -132,21 +156,36 @@ def generate_launch_description():
         description='Start robot in Gazebo simulation.')
     ld.add_action(declare_use_sim)
 
+    robot_description_kinematics = {
+    "robot_description_kinematics.arm.kinematics_solver": "kdl_kinematics_plugin/KDLKinematicsPlugin",  # Example solver (KDL)
+    "robot_description_kinematics.arm.kinematics_solver_search_resolution": 0.005,  # Example resolution
+    "robot_description_kinematics.arm.kinematics_solver_timeout": 0.05,  # Example timeout
+    "robot_description_kinematics.arm.position_only_ik": True,
+    "robot_description_kinematics.gripper.kinematics_solver": "kdl_kinematics_plugin/KDLKinematicsPlugin",  # Gripper solver
+    "robot_description_kinematics.gripper.kinematics_solver_search_resolution": 0.005,  # Gripper search resolution
+    "robot_description_kinematics.gripper.kinematics_solver_timeout": 0.05  # Gripper timeout
+     }
+   
+   
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
         output="screen",
-        parameters=[
+        parameters=[ 
             robot_description,
             robot_description_semantic,
+            robot_description_kinematics,
             kinematics_yaml,
             ompl_planning_pipeline_config,
             trajectory_execution,
+            moveit_config.joint_limits,
+            #moveit_config.kinematics,
             moveit_controllers,
             planning_scene_monitor_parameters,
             {'use_sim_time': use_sim},
         ],
     )
+    
 
     ld.add_action(move_group_node)
 

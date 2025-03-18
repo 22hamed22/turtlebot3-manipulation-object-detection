@@ -1,7 +1,19 @@
 # Default initial positions for turtlebot3_manipulation's ros2_control fake system
+robot_description: 'robot_description'
 
 initial_positions:
   joint1: 0
   joint2: 0
   joint3: 0
   joint4: 0
+
+  pick_and_place_positions:
+  green_object_pick_position:
+    position: [0.5, 0.2, 0.05]  # Green Box Position
+    orientation: [0.0, 0.0, 0.0, 1.0]  # Orientation as quaternion
+  blue_object_pick_position:
+    position: [0.5, -0.2, 0.05]  # Blue Box Position
+    orientation: [0.0, 0.0, 0.0, 1.0]  # Orientation as quaternion
+  place_position:
+    position: [0.5, 0.0, 0.2]  # Placement Position
+    orientation: [0.0, 0.0, 0.0, 1.0]

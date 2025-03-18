@@ -137,7 +137,19 @@ def generate_launch_description():
                 'use_respawn': use_respawn,
             }.items(),
         ),
-
+        
+            # Start Controller Server
+        Node(
+            package='nav2_controller',
+            executable='controller_server',
+            name='controller_server',
+            output='screen',
+            parameters=[params_file],
+            remappings=[
+            ('/cmd_vel', '/diff_drive/cmd_vel_unstamped'),
+        ]
+    ),
+        
         Node(
             package='rviz2',
             executable='rviz2',

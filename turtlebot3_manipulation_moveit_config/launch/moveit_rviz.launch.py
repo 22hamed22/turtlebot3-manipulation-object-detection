@@ -87,8 +87,29 @@ def generate_launch_description():
     with open(kinematics_yaml_path, "r") as file:
         kinematics_yaml = yaml.safe_load(file)
 
-    ld = LaunchDescription()
 
+    ''' Joint Limits Configuration
+    joint_limits_yaml_path = os.path.join(
+        get_package_share_directory("turtlebot3_manipulation_moveit_config"),
+        "config",
+        "joint_limits.yaml",  # Make sure this path is correct
+    )
+    with open(joint_limits_yaml_path, "r") as file:
+        joint_limits_yaml = yaml.safe_load(file)
+'''
+    ld = LaunchDescription()
+    robot_description_kinematics = {
+    "robot_description_kinematics.arm.kinematics_solver": "kdl_kinematics_plugin/KDLKinematicsPlugin",  # Example solver (KDL)
+    "robot_description_kinematics.arm.kinematics_solver_search_resolution": 0.005,  # Example resolution
+    "robot_description_kinematics.arm.kinematics_solver_timeout": 0.05,  # Example timeout
+    "robot_description_kinematics.arm.position_only_ik": True,
+    "robot_description_kinematics.gripper.kinematics_solver": "kdl_kinematics_plugin/KDLKinematicsPlugin",  # Gripper solver
+    "robot_description_kinematics.gripper.kinematics_solver_search_resolution": 0.005,  # Gripper search resolution
+    "robot_description_kinematics.gripper.kinematics_solver_timeout": 0.05  # Gripper timeout
+     }
+
+
+    # Add the rviz node
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
@@ -97,9 +118,12 @@ def generate_launch_description():
         arguments=["-d", rviz_config],
         parameters=[
             robot_description,
+            robot_description_kinematics,
             robot_description_semantic,
             ompl_planning_pipeline_config,
             kinematics_yaml,
+            #joint_limits_yaml,  # Add the joint limits parameters here
+            {"use_sim_time": True}
         ]
     )
 

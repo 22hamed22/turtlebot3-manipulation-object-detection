@@ -25,6 +25,15 @@ from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import xacro
 
+# ==========================================================
+from moveit_configs_utils import MoveItConfigsBuilder
+
+moveit_config = (
+    MoveItConfigsBuilder("turtlebot3_manipulation")
+    .to_moveit_configs()
+)
+# ===========================================================
+
 
 def generate_launch_description():
 
@@ -36,7 +45,9 @@ def generate_launch_description():
         default_value='true',
         description='Start robot in Gazebo simulation.')
     ld.add_action(declare_use_sim)
-
+    
+    
+# =======================================================================
     # Robot description
     robot_description_config = xacro.process_file(
         os.path.join(
@@ -62,6 +73,8 @@ def generate_launch_description():
     robot_description_semantic = {
         "robot_description_semantic": robot_description_semantic_config
     }
+# ==========================================================================
+    
 
         # kinematics yaml
     kinematics_yaml_path = os.path.join(
@@ -87,11 +100,14 @@ def generate_launch_description():
     # Launch as much as possible in components
     servo_node = Node(
         package="moveit_servo",
-        executable="servo_node_main",
+        executable="servo_node",
         parameters=[
             {'use_gazebo':use_sim},
             servo_params,
+            #{'moveit_servo.move_group_name': 'arm'},
+            {'moveit_servo.ee_frame': 'base_link'},   
             robot_description,
+            moveit_config.joint_limits,
             robot_description_semantic,
             kinematics_yaml,
         ]

@@ -1,0 +1,26 @@
+# Cartesian limits for the PILZ planner
+# These limits define the maximum velocity, acceleration, and other constraints for Cartesian motion
+
+# Maximum velocity (m/s) for the end-effector in each direction (X, Y, Z)
+cartesian_velocity_limits:
+  x: 0.2  # meters per second
+  y: 0.2  # meters per second
+  z: 0.2  # meters per second
+
+# Maximum acceleration (m/s^2) for the end-effector in each direction
+cartesian_acceleration_limits:
+  x: 0.5  # meters per second squared
+  y: 0.5  # meters per second squared
+  z: 0.5  # meters per second squared
+
+# Maximum cartesian velocity for rotation (rad/s)
+cartesian_angular_velocity_limits:
+  roll: 0.5  # radians per second
+  pitch: 0.5  # radians per second
+  yaw: 0.5  # radians per second
+
+# Maximum cartesian acceleration for rotation (rad/s^2)
+cartesian_angular_acceleration_limits:
+  roll: 1.0  # radians per second squared
+  pitch: 1.0  # radians per second squared
+  yaw: 1.0  # radians per second squared

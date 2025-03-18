@@ -51,29 +51,32 @@ def generate_launch_description():
             }.items(),
         )
     ld.add_action(move_group_launch)
-
+# ================================================================
     # gazebo_control with robot_state_publisher
     rviz_arg = DeclareLaunchArgument(
         'start_rviz',
         default_value='false',
         description='Whether execute rviz2')
     ld.add_action(rviz_arg)
-
+    
+# =================================================================
     empty_world_path = PathJoinSubstitution(
         [
             FindPackageShare('turtlebot3_manipulation_bringup'),
             'worlds',
             'empty_world.model'
+            #'turtlebot3_world.model'
         ]
     )
+# ==================================================================
 
     gazebo_control_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([bringup_launch_dir, '/gazebo.launch.py']),
         launch_arguments={
             'world': empty_world_path,
             'x_pose': '0.0',
-            'y_pose': '0.0',
-            'z_pose': '0.0',
+            'y_pose': '0', #'1.9',
+            'z_pose': '0', #'20.0',
             'roll': '0.0',
             'pitch': '0.0',
             'yaw': '0.0',
